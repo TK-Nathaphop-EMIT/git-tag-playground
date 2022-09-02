@@ -32,8 +32,6 @@ jobs:
             Full Changelog: https://github.com/${{ github.repository }}/commits/${{ steps.auto-tag.outputs.new_tag }}
           draft: false
           prerelease: false
-      - name: Try failure
-        run: exit 1
       - name: Test remove tag on failure
         if: ${{ failure() }}
         run: |
