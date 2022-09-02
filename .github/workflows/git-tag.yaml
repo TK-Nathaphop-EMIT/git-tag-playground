@@ -2,7 +2,7 @@ name: Auto Tag and Release
 
 on:
   push:
-    branches: [master]
+    branches: [test-remove-on-fail]
 
 jobs:
   auto_tag_and_release:
@@ -32,3 +32,13 @@ jobs:
             Full Changelog: https://github.com/${{ github.repository }}/commits/${{ steps.auto-tag.outputs.new_tag }}
           draft: false
           prerelease: false
+      - name: Try failure
+        run: exit 0
+      - name: Test remove tag on failure
+        if: ${{ failure() }}
+        # [$(git tag -l "$version") && success()]
+        run: |
+          if [ $(git tag -l "${{ steps.auto-tag.outputs.new_tag }}") ]; then
+            git tag -d ${{ steps.auto-tag.outputs.new_tag }}
+            git push -d origin ${{ steps.auto-tag.outputs.new_tag }}
+          fi
