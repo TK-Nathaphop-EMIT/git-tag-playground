@@ -1,0 +1,34 @@
+name: Auto Tag and Release
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  auto_tag_and_release:
+    name: 'Auto Tag and Release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: 'Auto tag'
+        id: auto-tag
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCHES: 'master'
+          DEFAULT_BUMP: 'patch'
+          WITH_V: false
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.auto-tag.outputs.new_tag }}
+          release_name: Release ${{ steps.auto-tag.outputs.new_tag }}
+          body: |
+            Full Changelog: https://github.com/<username>/<repo_name>/commits/${{ steps.auto-tag.outputs.new_tag }}
+          draft: false
+          prerelease: false
